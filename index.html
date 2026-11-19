@@ -185,7 +185,7 @@ dialog.full[open]{display:flex;flex-direction:column}
 .zoom{top:6px;gap:6px}.zoom button{width:40px;height:40px;font-size:22px}
 .banner{right:56px}
 .big .bt{display:block;font-weight:800}.big .bs{display:block;font-size:13px;font-weight:600;opacity:.85;margin-top:2px}
-#pdfStep,#pdfFotos,#pdfSave{flex-direction:column;gap:0;padding-top:10px;padding-bottom:10px;line-height:1.25}
+#pdfSimple,#pdfStep,#pdfFotos,#pdfSave{flex-direction:column;gap:0;padding-top:10px;padding-bottom:10px;line-height:1.25}
 
 /* ronda básica e faixa do ambiente */
 .app[hidden],.basic[hidden],.band[hidden]{display:none!important}
@@ -486,6 +486,14 @@ dialog .big{font-size:22px}
 @media (max-width:899px) and (max-height:780px){.offnote{padding:7px 10px;font-size:13px}.offnote span{display:block}.offnote span>i{display:none}}
 @media (max-width:899px) and (max-height:640px){.offnote{padding:6px 10px}.offnote span>em{display:none}.home{gap:6px}.tcard{min-height:54px}.tcard .ic{width:40px;height:40px}.tcard .tx span{font-size:12.5px;line-height:1.2}.inst-home{min-height:42px}}
 @media (max-width:350px){.inst-home{font-size:17px;gap:5px;padding:4px 6px}.inst-home svg{width:17px;height:17px}}
+/* aviso de fotos pendentes no fim da ronda */
+.fotowarn{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:2px solid var(--k);border-left-width:8px;border-radius:10px;background:#FFF7D6;color:var(--k);font-size:14.5px;line-height:1.35;margin:4px 0}
+.fotowarn[hidden]{display:none}
+.fotowarn svg{flex:none;width:24px;height:24px;stroke:var(--k);fill:none;stroke-width:2.2;stroke-linejoin:round}
+.fotowarn b{font-weight:700}
+.big.fotonext{position:relative;box-shadow:0 0 0 4px var(--y)}
+@media (prefers-reduced-motion:no-preference){.big.fotonext{animation:fotoPulse 1.6s ease-in-out infinite}}
+@keyframes fotoPulse{50%{box-shadow:0 0 0 8px rgba(255,198,26,.35)}}
 /* menu em grupos */
 #menuDlg{padding:16px}
 .menu-list{gap:2px}
@@ -555,7 +563,7 @@ dialog .big{font-size:22px}
   <section class="sheet" id="sheet" aria-live="polite"></section>
 </main>
 <section class="basic" id="basic" hidden aria-live="polite"></section>
-<div class="foot-strip" aria-hidden="true"><span>Desenvolvido por AAS GERSON · versão <b id="appVer">99</b></span></div>
+<div class="foot-strip" aria-hidden="true"><span>Desenvolvido por AAS GERSON · versão <b id="appVer">102</b></span></div>
 
 <dialog id="dlg">
   <h2 id="dlgT"></h2>
@@ -651,8 +659,9 @@ dialog .big{font-size:22px}
 <dialog id="pdfDlg" aria-label="Relatório pronto">
   <h2>Relatório pronto</h2>
   <p id="pdfName"></p>
+  <div class="fotowarn" id="pdfFotoWarn" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4Z"/><circle cx="12" cy="13" r="3.5"/></svg><div><b>As fotos não vão junto com o texto.</b> Depois de enviar o relatório, <u>volte para este app</u> e toque em <b>2. Enviar fotos</b>.</div></div>
   <div class="menu-list">
-    <button class="big cta" id="pdfSimple" type="button"></button>
+    <button class="big cta" id="pdfSimple" type="button" hidden style="display:none"></button>
     <div class="opt" id="optStep"><button class="big cta" id="pdfStep" type="button">📤 Enviar relatório de ronda</button></div>
     <div class="opt" id="optFotos"><button class="big cta" id="pdfFotos" type="button">📷 Enviar fotos</button></div>
     <button class="big plain" id="pdfSave" type="button">📎 Enviar detalhamento</button>
@@ -2476,7 +2485,7 @@ async function buildCover(){
     const T=(t,x,sz,col,b)=>{if(draw){ctx.font=font(sz,b);ctx.fillStyle=col;ctx.fillText(t,x,y);}};
     y+=34;T('RONDA · ESTAÇÃO BARRA FUNDA',M,34,'#FFFFFF',1);
     y+=LH+14;T((KIND==='mez'?'Mezanino · Trivia Trens':KIND_LABEL[KIND]).toUpperCase(),M,42,'#FFD166',1);
-    y+=LH;T(`${fmtDate(m.data)} · ${m.turno||''}${m.inicio?' · '+m.inicio+(m.fim?' às '+m.fim:''):''}`,M,FS,'#D7DEE5');
+    y+=LH;T(`${fmtDate(m.data)} · ${m.turno||''}${' · '+hrTxt(m)}`,M,FS,'#D7DEE5');
     y+=LH;T(`Agente: ${m.agente||'—'}${m.matricula?' · mat. '+m.matricula:''}`,M,FS,'#D7DEE5');
     y+=18;
     /* faixa de números */
@@ -2533,7 +2542,7 @@ function buildSummary(){
   const m=ronda.meta,c=counts(),L=[],all=allPoints().filter(inRonda);
   const ok=all.filter(p=>statusOf(p)==='ok'),bad=all.filter(p=>statusOf(p)==='problema'),na=all.filter(p=>statusOf(p)==='na'),pend=all.filter(p=>!statusOf(p));
   L.push('*RONDA – Estação Barra Funda ('+KIND_LABEL[KIND]+')*');
-  L.push(`${fmtDate(m.data)} · ${m.turno||''}${m.inicio?' · '+m.inicio+(m.fim?'–'+m.fim:''):''}`);
+  L.push(`${fmtDate(m.data)} · ${m.turno||''}${' · '+hrTxt(m)}`);
   L.push(`Agente: ${m.agente||'—'}${m.matricula?' (mat. '+m.matricula+')':''}`);
   if(encTxt())L.push('⚠️ *'+encTxt()+'*');
   L.push(`✅ Em ordem: ${ok.length} · ❌ Com problema: ${bad.length}${na.length?' · ➖ N/A: '+na.length:''}${pend.length?' · ⏳ Não verificados: '+pend.length:''}`);
@@ -2579,7 +2588,7 @@ function problemCaption(p){
 function buildCaption(){
   const m=ronda.meta,all=allPoints().filter(inRonda),MAX=1000;
   const ok=all.filter(p=>statusOf(p)==='ok'),bad=all.filter(p=>statusOf(p)==='problema'),na=all.filter(p=>statusOf(p)==='na'),pend=all.filter(p=>!statusOf(p));
-  const head=[`*RONDA – Estação Barra Funda (${KIND_LABEL[KIND]})*`,`${fmtDate(m.data)} · ${m.turno||''}${m.inicio?' · '+m.inicio+(m.fim?'–'+m.fim:''):''}`,`Agente: ${m.agente||'—'}${m.matricula?' (mat. '+m.matricula+')':''}`];
+  const head=[`*RONDA – Estação Barra Funda (${KIND_LABEL[KIND]})*`,`${fmtDate(m.data)} · ${m.turno||''}${' · '+hrTxt(m)}`,`Agente: ${m.agente||'—'}${m.matricula?' (mat. '+m.matricula+')':''}`];
   const foot=((na.length||pend.length)?['',`${na.length?'➖ N/A: '+na.length:''}${na.length&&pend.length?' · ':''}${pend.length?'⏳ Não analisados: '+pend.length:''}`]:[]).concat(termoTxt()?['','✔ Declaração de veracidade: '+(m.agente||'agente')+', '+dtFull(m.termo.ts)]:[]);
   const badL=bad.map((p,i)=>{const r=res(p.id);return `${i+1}) *${ttl(p)}*${p.custom?'':' – '+whereText(p)}${r.blq&&r.blq.length?' – bloq. '+r.blq.map(p2).join(', '):''} – ${r.note&&r.note.trim()?r.note.trim():'sem descrição'}`;});
   if(encTxt())head.push('⚠️ *ENCERRADA ANTES DO FIM*'+(m.enc.motivo?' – '+m.enc.motivo:''));
@@ -2609,8 +2618,9 @@ function updateStepBtn(){
   {const np=simpParts.length,done=simpIdx>=np&&np>0;$('#pdfSimple').innerHTML=`<span class="bt">${done?'✅ Relatório simplificado enviado':'🧾 Enviar relatório simplificado'+(np>1?` (parte ${simpIdx+1} de ${np})`:'')}</span><span class="bs">${done?'Toque para reenviar':'Itens com ✅ e, se houver, os problemas detalhados'}</span>`;}
   const n=pack.photos.length,nc=pack.covers.length,tot=nc+n;
   const np=txtParts.length,done=txtIdx>=np;
-  $('#pdfStep').innerHTML=`<span class="bt">${done?'✅ Relatório enviado':'📤 Enviar relatório de ronda'+(np>1?` (parte ${txtIdx+1} de ${np})`:'')}</span><span class="bs">${done?'Toque para reenviar':(np>1?'Texto longo: enviado em '+np+' partes, um toque cada':'Texto completo com todos os itens vistos')}</span>`;
-  $('#pdfFotos').innerHTML=`<span class="bt">${sentFot?'✅ Fotos enviadas':'📷 Enviar fotos'}</span><span class="bs">${nc} resumo${nc===1?'':'s'} (1 por ambiente) + ${n} foto${n===1?'':'s'} de problema${tot>30?' · mais de um envio':''}</span>`;
+  $('#pdfStep').innerHTML=`<span class="bt">${done?'✅ Relatório enviado':'1. 📤 Enviar relatório de ronda'+(np>1?` (parte ${txtIdx+1} de ${np})`:'')}</span><span class="bs">${done?'Toque para reenviar':(np>1?'Texto longo: enviado em '+np+' partes, um toque cada':'Texto completo com todos os itens vistos')}</span>`;
+  $('#pdfFotos').innerHTML=`<span class="bt">${sentFot?'✅ Fotos enviadas':'2. 📷 Enviar fotos'}</span><span class="bs">${nc} resumo${nc===1?'':'s'} (1 por ambiente) + ${n} foto${n===1?'':'s'} de problema${tot>30?' · mais de um envio':''}</span>`;
+  $('#pdfFotoWarn').hidden=sentFot||!tot;$('#pdfFotos').classList.toggle('fotonext',!sentFot&&!!tot);
   $('#pdfSave').innerHTML=`<span class="bt">${sentPdf?'✅ Detalhamento enviado':'📎 Enviar detalhamento'}</span><span class="bs">Relatório em PDF</span>`;
 }
 async function shareFiles(files,text){
@@ -2625,22 +2635,29 @@ $('#pdfSimple').onclick=async()=>{
   if(!pack||!simpParts.length)return;
   if(simpIdx>=simpParts.length)simpIdx=0;
   const t=simpParts[simpIdx];
-  try{await navigator.share({text:t});simpIdx++;updateStepBtn();}
+  try{await navigator.share({text:t});simpIdx++;updateStepBtn();if(simpIdx>=simpParts.length)pdfFotRemind();}
   catch(e){
     if(e&&e.name==='AbortError')return;
-    try{await navigator.clipboard.writeText(t);notify('Texto copiado. Cole no WhatsApp.');simpIdx++;updateStepBtn();}catch(_){notify('Não foi possível enviar o texto.');}
+    try{await navigator.clipboard.writeText(t);notify('Texto copiado. Cole no WhatsApp.');simpIdx++;updateStepBtn();if(simpIdx>=simpParts.length)fotOnReturn=pdfFotRemind;}catch(_){notify('Não foi possível enviar o texto.');}
   }
 };
 $('#pdfStep').onclick=async()=>{
   if(!pack)return;
   if(txtIdx>=txtParts.length)txtIdx=0;
   const t=txtParts[txtIdx];
-  try{await navigator.share({text:t});txtIdx++;updateStepBtn();}
+  try{await navigator.share({text:t});txtIdx++;updateStepBtn();if(txtIdx>=txtParts.length)pdfFotRemind();}
   catch(e){
     if(e&&e.name==='AbortError')return;
-    try{await navigator.clipboard.writeText(t);notify('Texto copiado. Cole no WhatsApp.');txtIdx++;updateStepBtn();}catch(_){notify('Não foi possível enviar o texto.');}
+    try{await navigator.clipboard.writeText(t);notify('Texto copiado. Cole no WhatsApp.');txtIdx++;updateStepBtn();if(txtIdx>=txtParts.length)fotOnReturn=pdfFotRemind;}catch(_){notify('Não foi possível enviar o texto.');}
   }
 };
+/* texto copiado (sem compartilhar): o lembrete das fotos aparece quando a pessoa volta para o app */
+var fotOnReturn=null;
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&fotOnReturn){const f=fotOnReturn;fotOnReturn=null;setTimeout(f,400);}});
+async function pdfFotRemind(){
+  if(!pack||sentFot)return;const n=pack.photos.length,nc=pack.covers.length;if(!n&&!nc)return;
+  if(await ask('Falta enviar as fotos',`O texto foi enviado. Ainda ${nc+n===1?'falta':'faltam'} ${nc} imagem${nc===1?'':'s'}-resumo${n?' e '+n+' foto'+(n===1?'':'s')+' dos problemas':''}.\n\nToque em Enviar fotos e escolha a mesma conversa do WhatsApp.`,'📷 Enviar fotos','Depois'))$('#pdfFotos').click();
+}
 $('#pdfFotos').onclick=async()=>{
   if(!pack)return;
   const all=pack.covers.concat(pack.photos);
@@ -2733,7 +2750,7 @@ function areaStat(){
 }
 function buildCaptionMulti(stats){
   const m=ronda.meta,MAX=1000;
-  const head=[`*RONDA – Estação Barra Funda*`,`${fmtDate(m.data)} · ${m.turno||''}${m.inicio?' · '+m.inicio+(m.fim?'–'+m.fim:''):''}`,`Agente: ${m.agente||'—'}${m.matricula?' (mat. '+m.matricula+')':''}`];
+  const head=[`*RONDA – Estação Barra Funda*`,`${fmtDate(m.data)} · ${m.turno||''}${' · '+hrTxt(m)}`,`Agente: ${m.agente||'—'}${m.matricula?' (mat. '+m.matricula+')':''}`];
   const foot=termoTxt()?['','✔ Declaração de veracidade: '+(m.agente||'agente')+', '+dtFull(m.termo.ts)]:[];
   const build=(lim,mode)=>{
     const L=head.slice();let n=0;
@@ -2764,7 +2781,7 @@ async function stackCovers(files){
 /* texto único (<= 4000 caracteres, limite do WhatsApp): os problemas ficam sempre completos; o resto encolhe se preciso */
 function buildFullText(stats){
   const m=ronda.meta,MAX=4000;
-  const head=[`*RONDA – Estação Barra Funda*`,`${fmtDate(m.data)} · ${m.turno||''}${m.inicio?' · '+m.inicio+(m.fim?'–'+m.fim:''):''}`,`Agente: ${m.agente||'—'}${m.matricula?' (mat. '+m.matricula+')':''}`];
+  const head=[`*RONDA – Estação Barra Funda*`,`${fmtDate(m.data)} · ${m.turno||''}${' · '+hrTxt(m)}`,`Agente: ${m.agente||'—'}${m.matricula?' (mat. '+m.matricula+')':''}`];
   if(encTxt())head.push('⚠️ *'+encTxt()+'*');
   const tail=[];if(m.obs&&m.obs.trim())tail.push('','Obs.: '+m.obs.trim());if(termoTxt())tail.push('','✔ '+termoTxt());
   const build=(lvl,pl)=>{ /* lvl: 0 lista | 1 lista corrida | 2 por tipo | 3 só contagem ; pl: 0 completo | 1 sem hora | 2 uma linha */
@@ -2799,9 +2816,11 @@ const SIMPLE_CATS={
 const SIMPLE_LABEL={mez:'Mezanino',p78:'Plataforma 7/8',p910:'Plataforma 9/10'};
 const AREA_ICON={mez:'🏬',p78:'🚆',p910:'🚆'};
 const areaHead=(k,label)=>['','━━━━━━━━━━━━━━',`${AREA_ICON[k]||'📍'} *${String(label).toUpperCase()}*`,'━━━━━━━━━━━━━━'];
+/* início e término da ronda, por extenso, em todos os relatórios */
+function hrTxt(m){return 'Início: '+(m.inicio||'—')+' · Término: '+(m.fim||'—');}
 function buildSimpleText(stats){
   const m=ronda.meta,ag=(m.agente||'').trim(),aas=/^aas\b/i.test(ag)?ag:('AAS '+ag).trim();
-  const L=[`*Ronda Estação BFU Turno ${m.turno||''}*`.replace(' *','*'),`*${fmtDate(m.data)}*`,`*Horário: ${m.inicio||nowHM()}${m.fim?' às '+m.fim:''}*`,'',`*${aas}*`];
+  const L=[`*Ronda Estação BFU Turno ${m.turno||''}*`.replace(' *','*'),`*${fmtDate(m.data)}*`,`*${hrTxt(m)}*`,'',`*${aas}*`];
   const bad=[];
   for(const s of stats){
     L.push('',`*${SIMPLE_LABEL[s.k]||s.label}*`);
@@ -2984,7 +3003,7 @@ function bProblems(){
 }
 function buildBasicText(){
   const m=basic.meta,ag=(m.agente||'').trim(),aas=/^aas\b/i.test(ag)?ag:('AAS '+ag).trim();
-  const L=[`*Ronda Estação BFU Turno ${m.turno||''}*`.replace(' *','*'),`*${fmtDate(m.data)}*`,`*Horário: ${m.inicio||''}${m.fim?' às '+m.fim:''}*`,'',`*${aas}*`];
+  const L=[`*Ronda Estação BFU Turno ${m.turno||''}*`.replace(' *','*'),`*${fmtDate(m.data)}*`,`*${hrTxt(m)}*`,'',`*${aas}*`];
   BASIC_AREAS.forEach(a=>{
     L.push('',`*${a.short}*`);
     a.cats.forEach(c=>{const s=bStat(a.k,c);L.push(c+' '+(s.s==='⚠️'?`⚠️ (${s.n} com problema)`:s.s));});
@@ -3010,8 +3029,9 @@ function basicSummary(){
   const np=pr.reduce((n,x)=>n+x.p.photos.length,0);
   if(!basic.meta.fim){basic.meta.fim=nowHM();bSave();}
   h+=`<div class="field" style="margin:4px 0"><label class="lbl" for="bFim">Término da ronda (pode ajustar)</label><input class="inp" id="bFim" type="time" value="${esc(basic.meta.fim)}"></div>`;
-  h+=`<button class="big cta" type="button" data-b="send" style="flex-direction:column"><span class="bt">🧾 Enviar relatório simplificado</span><span class="bs">Itens com ✅ e os problemas detalhados</span></button>`+
-     `<button class="big cta" type="button" data-b="fotos" style="flex-direction:column"${np?'':' disabled'}><span class="bt">📷 Enviar fotos</span><span class="bs">${np?np+' foto'+(np===1?'':'s')+' dos problemas':'Nenhuma foto de problema'}</span></button>`+
+  if(np&&!bFotSent)h+=`<div class="fotowarn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4Z"/><circle cx="12" cy="13" r="3.5"/></svg><div><b>Você tem ${np} foto${np===1?'':'s'} para enviar.</b> Elas não vão junto com o texto. Envie o relatório, <u>volte para este app</u> e toque em <b>2. Enviar fotos</b>.</div></div>`;
+  h+=`<button class="big cta" type="button" data-b="send" style="flex-direction:column"><span class="bt">${np?'1. ':''}🧾 Enviar relatório simplificado</span><span class="bs">Itens com ✅ e os problemas detalhados</span></button>`+
+     `<button class="big cta${np&&!bFotSent?' fotonext':''}" type="button" data-b="fotos" style="flex-direction:column"${np?'':' disabled'}><span class="bt">${np?(bFotSent?'✅ Fotos enviadas':'2. 📷 Enviar fotos'):'📷 Enviar fotos'}</span><span class="bs">${np?(bFotSent?'Toque para reenviar':np+' foto'+(np===1?'':'s')+' dos problemas'):'Nenhuma foto de problema'}</span></button>`+
      `<div class="bnav"><button type="button" data-b="back">↩ Voltar</button><button type="button" data-b="newr" style="color:var(--bad-t)">↺ Nova ronda</button></div></div>`;
   return h;
 }
@@ -3037,22 +3057,30 @@ async function bPhotoFiles(){
   return out;
 }
 let bTxtParts=[],bTxtIdx=0;
+Object.defineProperty(window,'bFotSent',{get(){return !!(basic&&basic.fotSent);},set(v){if(basic){basic.fotSent=!!v;try{bSave();}catch(_){}}},configurable:true});
+const bPhotoCount=()=>bProblems().reduce((n,x)=>n+x.p.photos.length,0);
 async function bSendText(){
   if(!bTxtParts.length||bTxtIdx>=bTxtParts.length){bTxtParts=splitText(buildBasicText(),4000);bTxtIdx=0;}
   const t=bTxtParts[bTxtIdx];
-  try{await navigator.share({text:t});bTxtIdx++;if(bTxtIdx<bTxtParts.length)notify('Parte '+bTxtIdx+' enviada. Toque de novo para a próxima.');else bTxtParts=[];}
+  try{await navigator.share({text:t});bTxtIdx++;if(bTxtIdx<bTxtParts.length)notify('Parte '+bTxtIdx+' enviada. Toque de novo para a próxima.');else{bTxtParts=[];bFotRemind();}}
   catch(e){
     if(e&&e.name==='AbortError')return;
-    try{await navigator.clipboard.writeText(t);notify('Texto copiado. Cole no WhatsApp.');bTxtIdx++;if(bTxtIdx>=bTxtParts.length)bTxtParts=[];}catch(_){notify('Não foi possível enviar o texto.');}
+    try{await navigator.clipboard.writeText(t);notify('Texto copiado. Cole no WhatsApp.');bTxtIdx++;if(bTxtIdx>=bTxtParts.length){bTxtParts=[];fotOnReturn=bFotRemind;}}catch(_){notify('Não foi possível enviar o texto.');}
   }
 }
-async function bSendPhotos(){
+async function bFotRemind(){
+  const n=bPhotoCount();if(!n||bFotSent)return;
+  const prep=bPhotoFiles();
+  if(await ask('Falta enviar as fotos',`O texto foi enviado. As ${n} foto${n===1?'':'s'} dos problemas ainda não.\n\nToque em Enviar fotos e escolha a mesma conversa do WhatsApp.`,'📷 Enviar fotos','Depois'))bSendPhotos(await prep);
+}
+async function bSendPhotos(pre){
   notify('Preparando fotos…');
-  const files=await bPhotoFiles();$('#toast').classList.remove('on');
+  const files=pre||await bPhotoFiles();$('#toast').classList.remove('on');
   if(!files.length)return;
   if(!(navigator.canShare&&navigator.canShare({files}))){let n=0;for(const f of files){if(await saveFile(f,f.name))n++;await new Promise(r=>setTimeout(r,350));}if(n)notify(n+' foto'+(n===1?'':'s')+' salva'+(n===1?'':'s')+'.');return;}
   let ok=true;
   for(let i=0;i<files.length&&ok;i+=30){ok=await shareFiles(files.slice(i,i+30),'');if(i+30<files.length&&ok)await new Promise(r=>setTimeout(r,300));}
+  if(ok){bFotSent=true;renderBasic();}
 }
 async function bAddPhotos(files){
   if(!bDraft)return;

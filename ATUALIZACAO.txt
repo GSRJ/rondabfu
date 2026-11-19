@@ -1,0 +1,43 @@
+Ronda Barra Funda - atualização de 15/11/2026
+
+Suba a pasta inteira no Netlify (index.html, manifest.webmanifest, sw.js e os 3 ícones).
+No Netlify, cada envio substitui o site todo: se subir só o index.html, os arquivos de instalação somem.
+
+O que mudou:
+- Arquivos de instalação do app (manifest, service worker e ícones). Sem eles o "Instalar" não funcionava.
+- Sequência da ronda definida no editor de locais: Mezanino 91 itens, Plataformas 7 e 8 44 itens, Plataformas 9 e 10 31 itens.
+- Vãos do Mezanino, 2 extintores A/B/C e as salas técnicas das plataformas ficam fora da ronda, mas podem ser tocados para reportar.
+- "Onde fica" com os nomes de áreas do editor de locais.
+- Itens novos no Mezanino: Alarme 01 e Extintor B C C6-797.
+- O horário de término não é mais pedido no início. Ele aparece no final (ao encerrar a ronda detalhada e no resumo da ronda básica), já preenchido com a hora atual, e pode ser alterado.
+- Turno automático: Manhã das 6h às 14h, Tarde das 14h às 22h, Noite das 22h às 6h.
+- Planta do Mezanino atualizada (16/11): posições ajustadas e quiosque novo (Quiosque Ponto Café, junto à escada rolante 30), que entra na ronda entre as escadas rolantes 31 e 30.
+- Todos os itens aparecem na planta da tela inicial, inclusive os vãos (etiqueta VÃO).
+- Itens como extintor, hidrante, mapa, quadro de força, totem, painel, ATM, alarme e os demais agora têm um desenho próprio no lugar da letra.
+- A planta inicial mostra só os desenhos, sem nomes. O quiosque novo ganhou o desenho padrão de quiosque.
+- Configurar planta: os botões de "Incluir" mostram o desenho de cada item; novo tipo de item Quiosque; em "Desenhos", novos desenhos de Quiosque e Vão para a via.
+- Legenda da planta inclui os desenhos dos itens presentes (extintor, hidrante, mapa, quadro de força, totem, painel, ATM, alarme, validador).
+- Plataformas 7 e 8 atualizadas (16/11): novo item Pegador 02 (no corredor das salas técnicas, logo após o Pegador na ronda) e pilares conforme a planta enviada.
+- Menu: novo botão "Ver plantas", com as três plantas (Mezanino, Plataformas 7 e 8, Plataformas 9 e 10) e zoom.
+- As plantas indicam "Desenho: AAS Gerson · sem escala".
+- Ver plantas: ao ampliar com ＋, aparece o nome de cada item embaixo do desenho.
+- Mezanino (16/11): retirados os dois Extintores A/B/C perto do Quiosque Casa de Bolos.
+- Ver plantas abre em tela cheia, como a planta inicial: só a planta, zoom (botões ou dois dedos) e o botão Legenda.
+- Trajeto da ronda no Mezanino (linha verde da planta) conforme desenhado no editor de locais em 16/11.
+- Botões Em ordem e Problema sempre na mesma posição da tela (cabeçalho do item com altura fixa), no celular e no computador.
+- Trajeto do Mezanino atualizado (16/11, 12h45) e a linha verde passa a ser preenchida conforme os itens verificados, seguindo a sequência da ronda ao longo do trajeto.
+- Revisão de usabilidade (16/11): rodapé mais baixo (mais espaço para a planta), menu em duas colunas em telas largas, topo da tela inicial sem botões que não se aplicam, zoom do item proporcional à tela no computador, planta reenquadrada quando o painel muda de tamanho, links do rodapé do item com área de toque maior.
+- Ronda no computador: atalhos de teclado O (em ordem), P (problema), N (não se aplica) e Enter (próximo ponto).
+- Novo visual "placa de estação" (16/11, 21h): topo preto com faixa amarela, cartões pretos com seta amarela, botões retos e letras Barlow Condensed (embutidas no arquivo, funcionam sem internet). "Instalar o app" e "Como usar" ficam lado a lado na tela inicial.
+- Tour refeito para ficar fluido: o destaque e o dedo se movem sem travar, cada passo responde em menos de meio segundo e tocar no item destacado também avança. O tour abre sozinho só no primeiro acesso. Depois fica em "Como usar (tour)", na tela inicial, e no menu.
+- "Instalar o app no celular" aparece na tela inicial, abaixo dos cartões, enquanto o app não estiver instalado.
+- O botão Nova voltou ao topo em todas as telas, e "Nova ronda" voltou ao rodapé do item.
+- Barra escura alta de volta ao rodapé (66 px), para o selo da hospedagem não cobrir o app. No tour, a digitação simulada ficou mais lenta, com pausa antes e depois.
+- Cartões da tela inicial com o texto original: "Checkup rápido com os principais pontos da estação" e "Varredura completa da estação".
+- Traçado da ronda no Mezanino: quando a sequência volta um pouco (quiosques depois do Extintor B/C P8-53875), a linha verde fica parada e só avança quando a ronda avança. Antes ela pulava para o fim do trajeto.
+- Tour: mãozinha nova, desenhada. Ela chega ao ponto, aperta e solta, com duas ondas amarelas no toque. Parada, repete o gesto de tocar para mostrar onde é.
+- Tela inicial cabe inteira em celulares menores: o painel ocupa a altura de que precisa, a planta fica com o resto e os cartões ficam mais baixos em telas curtas.
+- Plantas das Plataformas 7 e 8 e 9 e 10 com os trilhos desenhados dos dois lados (lastro, dormentes e os dois trilhos). Aparecem na planta do app, em "Ver plantas" e na planta do relatório.
+- Toque no trilho: o local sai como "No trilho da Plataforma 7, na ponta sentido Luz". O texto diz de qual plataforma é a via e o trecho: ponta sentido Luz, entre o centro e a ponta, centro, ou ponta sentido áreas técnicas.
+- Tour da ronda básica: quatro passos novos sobre o "📍 Onde localizar". A mãozinha abre a lista de onde fica cada item, toca no primeiro, mostra o item na planta com o círculo vermelho e fecha de volta para a pergunta.
+- Tela inicial com o aviso "Funciona sem internet depois de instalado": a ronda inteira, com fotos, funciona sem sinal, e o relatório sai pelo WhatsApp quando o celular voltar a ter conexão. O aviso some quando o app já está instalado. A tela de instalar também explica o uso sem internet.
